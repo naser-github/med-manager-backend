@@ -14,22 +14,6 @@ use Illuminate\Support\Facades\Session;
 class UserController extends Controller
 {
 
-    public function index()
-    {
-        $users = User::all();
-
-        return view('pages.admin.user_management.index',
-            compact('users'));
-    }
-
-    public function create()
-    {
-        $roles = DB::table("roles")->select('id', 'name')->get();
-
-        return view('pages.admin.user_management.create',
-            compact('roles'));
-    }
-
     public function store(Request $request)
     {
         request()->validate([
@@ -63,10 +47,9 @@ class UserController extends Controller
 
         if ($user) {
             $roles = DB::table("roles")->select('id', 'name')->get();
-            return view('pages.admin.user_management.edit',
-                compact('user', 'roles'));
         } else
-            return back();
+
+        return back();
     }
 
     public function update(Request $request, $id)
@@ -96,8 +79,6 @@ class UserController extends Controller
         $user_profile->user_phone = $request->input('phone');
         $user_profile->save();
 
-        Session::flash('success', 'User details has been updated');
-        return Redirect::route('users.index');
     }
 
     public function show($id)
