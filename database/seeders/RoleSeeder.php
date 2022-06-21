@@ -16,5 +16,6 @@ class RoleSeeder extends Seeder
     public function run()
     {
         Role::create(['name' => 'superOperator']);
+        Role::create(['name' => 'user']);
     }
 }

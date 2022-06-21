@@ -19,8 +19,8 @@ class UserSeeder extends Seeder
         // Super Operator
         $user = new User();
         $user->name = 'Super Operator';
-        $user->email = 'superOperator@daraz.com';
-        $user->password = Hash::make('D@r@z9876543210');
+        $user->email = 'superOperator@gmail.com';
+        $user->password = Hash::make('Ab123456');
         $user->user_status = 'active';
         $user->save();
     }

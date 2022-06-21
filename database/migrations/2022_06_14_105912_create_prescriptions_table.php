@@ -17,9 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('fk_user_id');
             $table->foreignId('fk_medicine_id');
-            $table->json('frequency');
-            $table->string('time_period');
-            $table->string('status');
+            $table->date('time_period');
+            $table->string('status')->default('active');
             $table->timestamps();
 
             $table->foreign('fk_user_id')->references('id')->on('users');

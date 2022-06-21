@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    function login(Request $request)
+    function signIn(Request $request)
     {
         $user = User::where('email', $request->email)->first();
 
@@ -19,11 +19,13 @@ class LoginController extends Controller
         }
 
         $token = $user->createToken('my-app-token')->plainTextToken;
+        unset($user->id);
 
         $response = [
             'user' => $user,
             'token' => $token
         ];
+
 
         return response($response, 200);
     }
