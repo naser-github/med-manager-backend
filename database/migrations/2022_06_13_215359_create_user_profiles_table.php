@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('fk_user_id');
             $table->string('user_phone', 21)->nullable();
+            $table->string('avatar')->nullable();
             $table->timestamps();
 
             $table->foreign('fk_user_id')->references('id')->on('users');

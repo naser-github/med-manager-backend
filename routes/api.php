@@ -18,20 +18,26 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-//log in
-Route::post('/sign-in', 'App\Http\Controllers\LoginController@signIn');
-
 //sign up
 Route::post('/sign-up', 'App\Http\Controllers\UserManagement\UserController@store');
 
+Route::prefix('/sign-in')->group(function () {
+    //log in
+    Route::post('/', 'App\Http\Controllers\SignInController@signIn');
+
+    // google login
+    Route::get('/{channel}', 'App\Http\Controllers\SignInController@channel');
+    Route::get('/{channel}/callback', 'App\Http\Controllers\SignInController@channelCallback');
+});
+
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-//    Route::middleware(['auth', 'role:superOperator|user'])->group(function () {
-
+    Route::middleware(['auth', 'role:superOperator|user'])->group(function () {
         // add medicines
         Route::post('/add-medicine', 'App\Http\Controllers\PrescriptionController@addPrescription');
 
-//    });
+    });
 });
 
 //        Route::prefix('/application')->group(function () {
