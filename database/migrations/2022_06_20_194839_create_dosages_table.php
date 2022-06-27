@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->nullableMorphs('dosage');
             $table->string('label');
             $table->time('time');
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

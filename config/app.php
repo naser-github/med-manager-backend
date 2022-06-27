@@ -200,6 +200,8 @@ return [
         //spatie
         Spatie\Permission\PermissionServiceProvider::class,
 
+        // Laravel Debugger
+        Barryvdh\Debugbar\ServiceProvider::class,
     ],
 
     /*
@@ -215,6 +217,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+
+        //Laravel Debugger
+        'Debugbar' => Barryvdh\Debugbar\Facades\Debugbar::class,
     ])->toArray(),
 
 ];
