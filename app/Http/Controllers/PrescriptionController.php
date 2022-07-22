@@ -19,13 +19,13 @@ class PrescriptionController extends Controller
         $formData = $request->input('formData');
         $prescriptionNotSaved = array();
 
-
         foreach ($formData as $data) {
 
             $timePeriod = Carbon::today()->addDays($data['timePeriod'])->toDateString();
 
             $medicine = Medicine::where('name', $data['medicineName'])->first();
 
+            // add medicine name to the medicine table if it doesn't exist
             if (!$medicine) {
                 $medicine = new Medicine();
                 $medicine->name = $data['medicineName'];
@@ -62,5 +62,42 @@ class PrescriptionController extends Controller
         ];
 
         return response($response, 201);
+    }
+
+    public function prescriptionList()
+    {
+        $list = Prescription::where('prescriptions.fk_user_id', Auth::id())
+            ->select('medicines.name', 'prescriptions.id', 'prescriptions.status', 'prescriptions.time_period')
+            ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
+            ->get();
+
+        $response = [
+            'list' => $list,
+        ];
+
+        return response($response, 200);
+    }
+
+    public function updatePrescription(Request $request)
+    {
+
+        $prescriptionExist = Prescription::where('id', $request->id)->first();
+
+        if ($prescriptionExist) {
+            $medicine = Medicine::where('name', $request->name)->first();
+
+            if (!$medicine) {
+                $medicine = new Medicine();
+                $medicine->name = $request->name;
+                $medicine->save();
+            }
+
+        } else {
+            $response = [
+                'msg' => "medicines doesn't exist",
+            ];
+
+            return response($response, 404);
+        }
     }
 }
