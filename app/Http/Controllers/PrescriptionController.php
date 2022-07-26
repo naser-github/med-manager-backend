@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use App\Models\Prescription;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Traits\HelperFunctionTrait;
 
 class PrescriptionController extends Controller
 {
+    use HelperFunctionTrait;
+
     public function addPrescription(Request $request)
     {
         request()->validate([
@@ -23,7 +27,7 @@ class PrescriptionController extends Controller
 
             $timePeriod = Carbon::today()->addDays($data['timePeriod'])->toDateString();
 
-            $medicine = Medicine::where('name', $data['medicineName'])->first();
+            $medicine = $this->medicineExist($data['medicineName']);
 
             // add medicine name to the medicine table if it doesn't exist
             if (!$medicine) {
@@ -35,24 +39,29 @@ class PrescriptionController extends Controller
             $prescriptionExist = Prescription::where('fk_user_id', Auth::id())
                 ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
                 ->where('medicines.name', $data['medicineName'])
-                ->where('time_period', '>=', Carbon::today())
                 ->first();
 
-            if ($prescriptionExist)
-                $prescriptionNotSaved[] = $data['medicineName'];
-            else {
+            if (!$prescriptionExist) {
                 $prescription = new Prescription();
                 $prescription->fk_user_id = Auth::id();
                 $prescription->fk_medicine_id = $medicine->id;
                 $prescription->time_period = $timePeriod;
                 $prescription->save();
 
-                foreach ($data['doseDetails'] as $dose) {
-                    $prescription->dose()->create([
-                        'label' => $dose['label'],
-                        'time' => $dose['time'],
-                    ]);
+                $this->addDosage($prescription,$data['doseDetails']);
+            } else {
+                if ($prescriptionExist->time_period < Carbon::today() || $prescriptionExist->status = 'inactive') {
+                    $prescriptionExist->time_period = $timePeriod;
+                    $prescriptionExist->status = 'active';
+                    $prescriptionExist->save();
+
+                    $prescriptionExist->dose()->delete();
+
+                    $this->addDosage($prescriptionExist,$data['doseDetails']);
+                } else {
+                    $prescriptionNotSaved[] = $data['medicineName'];
                 }
+
             }
         }
 

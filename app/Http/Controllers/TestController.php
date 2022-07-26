@@ -2,67 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\HelperFunctionTrait;
+use App\Models\Prescription;
+use App\Models\User;
 use Carbon\Carbon;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TestController extends Controller
 {
+    use HelperFunctionTrait;
+
     public function test()
     {
+//        $prescriptionExist = Prescription::where('fk_user_id', 2)
+//            ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
+//            ->where('medicines.name', 'napa')
+//            ->where('time_period', '>=', Carbon::today())
+//            ->first();
+//
+//        if ($prescriptionExist && $prescriptionExist->status == 'inactive')
+//            $prescriptionNotSaved[] = 'napa';
+//
+//        dd($prescriptionExist, $prescriptionNotSaved);
 
-
-//        $user = DB::table('users')->where('email', 'hbj')->first();
-//        if ($user){
-//            dd($user);
-//        }else{
-//            dd('nothing');
-//        }
-
-//        $results = DB::table('test_codes')->orderBy('TESTCODE')->get();
+//        else {
+//            $prescription = new Prescription();
+//            $prescription->fk_user_id = Auth::id();
+//            $prescription->fk_medicine_id = $medicine->id;
+//            $prescription->time_period = $timePeriod;
+//            $prescription->save();
 //
-//        $test_codes = $results->unique('TESTCODE')->sortBy('TESTCODE')->pluck('TESTCODE');
-//
-//        $padids = $results->unique('PATID');
-//
-//        $array = array();
-//
-//        foreach ($padids as $padid){
-//            foreach ($test_codes as $test_code){
-//                $result = $results->where('TESTCODE', $test_code)->where('PATID', $padid->PATID)->first();
-//
-//                if ($result){
-//                   $array[] =  $result->RESULT;
-//                }else{
-//                    $array[] =  '';
-//                }
+//            foreach ($data['doseDetails'] as $dose) {
+//                $prescription->dose()->create([
+//                    'label' => $dose['label'],
+//                    'time' => $dose['time'],
+//                ]);
 //            }
-//            $padid->array = $array;
-//            $array = [];
-//
 //        }
-//
-//        return view('data', compact('padids', 'test_codes'));
-
-//        $string = 'PATID,AGEY,AGEM,AGED,SEX,';
-//
-//        $testcode = DB::table('test_codes')
-//            ->select('TESTCODE')
-//            ->groupBy('TESTCODE')
-//            ->get();
-//
-//        foreach ($testcode as $code) {
-//            $string = $string . 'SUM(Case WHEN TESTCODE = "' . $code->TESTCODE . '" then RESULT end) as "' . 'TESTCODE' . $code->TESTCODE . '",';
-//        }
-//
-//        $string .= 'created_at';
-//
-//        $query = DB::table('test_codes')
-//            ->select(DB::raw($string), 'created_at')
-//            ->groupBy('PATID')
-//            ->get();
-//
-//        return view('data', compact('query', 'testcode'));
-
     }
 }
