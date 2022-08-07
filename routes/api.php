@@ -1,14 +1,14 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
 //sign up
-Route::post('/sign-up', 'App\Http\Controllers\UserManagement\UserController@store');
+Route::post('/sign-up', [AuthController::class, 'signUp']);
 
 Route::prefix('/sign-in')->group(function () {
-
     //log in
     Route::post('/', 'App\Http\Controllers\SignInController@signIn');
 

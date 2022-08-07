@@ -30,7 +30,7 @@ class TestController extends Controller
 
 //        else {
 //            $prescription = new Prescription();
-//            $prescription->fk_user_id = Auth::id();
+//            $prescription->fk_user_id = AuthService.php::id();
 //            $prescription->fk_medicine_id = $medicine->id;
 //            $prescription->time_period = $timePeriod;
 //            $prescription->save();
