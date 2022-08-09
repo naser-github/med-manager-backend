@@ -20,6 +20,7 @@ return [
     'signInFailed' => 'These credentials do not match any records',
     'signUpSuccess' => 'Congratulation, you have been registered into the club 😜',
     'statusInactive' => 'Your account is inactive!!!',
+    'signInSuccess' => 'Ahoy Mate 😄'
 
 
 ];

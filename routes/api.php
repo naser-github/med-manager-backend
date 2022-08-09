@@ -10,11 +10,11 @@ Route::post('/sign-up', [AuthController::class, 'signUp']);
 
 Route::prefix('/sign-in')->group(function () {
     //log in
-    Route::post('/', 'App\Http\Controllers\SignInController@signIn');
+    Route::post('/', [AuthController::class, 'signIn']);
 
     // google login
-    Route::get('/{channel}', 'App\Http\Controllers\SignInController@channel');
-    Route::get('/{channel}/callback', 'App\Http\Controllers\SignInController@channelCallback');
+    Route::get('/{channel}', [AuthController::class, 'channel']);
+    Route::get('/{channel}/callback', [AuthController::class, 'channelCallback']);
 });
 
 

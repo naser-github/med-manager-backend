@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\SignInRequest;
 use App\Http\Requests\Auth\SignUpRequest;
+use App\Http\Resources\Auth\AuthResource;
 use App\Http\Services\AuthService;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\JsonResponse;
+
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -30,24 +33,22 @@ class AuthController extends Controller
 
     public function signIn(SignInRequest $request, AuthService $authService): JsonResponse
     {
-        // $request->ensureIsNotRateLimited(); // check user login attempts
-
-        $message = '';
-        $token = '';
         $validatedData = $request->validated();
 
         $user = $authService->findByEmail($validatedData['email']);
 
         if ($user && Hash::check($validatedData['password'], $user->password)) {
-            if ($user->status == 'active') $token = $user->createToken('my-app-token')->plainTextToken;
-            else $message = [trans('auth.statusInactive')];
-        } else $message = [trans('auth.signInFailed')];
+            if ($user->user_status != 'active')
+                throw ValidationException::withMessages(['message' => [trans('auth.statusInactive')]]);
+        } else throw ValidationException::withMessages(['message' => [trans('auth.signInFailed')]]);
 
+        // $user = AuthResource::collection($user);
         return response()->json([
             'success' => true,
-            'message' => 'Welcome fellow mate',
-            'response' => [
-                'user' => $user, 'token' => $token
+            'data' => [
+                'message' => [trans('auth.signInSuccess')],
+                'token' => $user->createToken('my-app-token')->plainTextToken,
+                'user' => $user
             ]
         ], 200);
     }
@@ -57,7 +58,7 @@ class AuthController extends Controller
         return Socialite::driver($channel)->redirect();
     }
 
-    public function channelCallback($channel)
+    public function channelCallback($channel, AuthService $authService)
     {
         try {
             $user = Socialite::driver($channel)->stateless()->user();
@@ -65,22 +66,15 @@ class AuthController extends Controller
             return redirect(env('CLIENT_BASE_URL') . '/auth/sign-in?error=Unable to login using ' . $channel . '. Please try again');
         }
 
-        $userExist = User::where('email', $user->email)->first();
+        $userExist = $authService->findByEmail($user->email);
+
         $token = null;
 
         if (!$userExist) {
-            $newUser = new User();
-            $newUser->name = $user->name;
-            $newUser->email = $user->email;
-            $newUser->save();
 
+            $newUser = $authService->socialMediaLogin($user);
             $newUser->assignRole('user');
-
-            $user_profile = new UserProfile();
-            $user_profile->fk_user_id = $newUser->id;
-            $user_profile->avatar = $user->avatar;
-            $user_profile->save();
-
+            $authService->setProfile($newUser->id, $user->avatar);
             $token = $newUser->createToken('my-app-token')->plainTextToken;
         } else
             $token = $userExist->createToken('my-app-token')->plainTextToken;
