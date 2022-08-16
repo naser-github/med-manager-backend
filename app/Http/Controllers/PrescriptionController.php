@@ -2,23 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medicine;
-use App\Models\Prescription;
-
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Prescription\PrescriptionAddRequest;
+use App\Http\Resources\PrescriptionResource;
+use App\Http\Services\MedicineService;
+use App\Http\Services\PrescriptionService;
+use Illuminate\Http\JsonResponse;
 use App\Http\Traits\HelperFunctionTrait;
+use Illuminate\Support\Carbon;
 
 class PrescriptionController extends Controller
 {
     use HelperFunctionTrait;
 
-    public function addPrescription(Request $request)
+    public function addPrescription(PrescriptionAddRequest $request, MedicineService $medicineService, PrescriptionService $prescriptionService)
     {
-        request()->validate([
-            'formData' => 'required',
-        ]);
+
+        $request->validated();
 
         $formData = $request->input('formData');
         $prescriptionNotSaved = array();
@@ -27,28 +26,19 @@ class PrescriptionController extends Controller
 
             $timePeriod = Carbon::today()->addDays($data['timePeriod'])->toDateString();
 
-            $medicine = $this->medicineExist($data['medicineName']);
+            $medicine = $medicineService->findByName($data['medicineName']);
+
 
             // add medicine name to the medicine table if it doesn't exist
-            if (!$medicine) {
-                $medicine = new Medicine();
-                $medicine->name = $data['medicineName'];
-                $medicine->save();
-            }
+            if (!$medicine) $medicine = $medicineService->create($data['medicineName']);
 
-            $prescriptionExist = Prescription::where('fk_user_id', Auth::id())
-                ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
-                ->where('medicines.name', $data['medicineName'])
-                ->first();
+
+            $prescriptionExist = $prescriptionService->prescriptionExist($data['medicineName']);
 
             if (!$prescriptionExist) {
-                $prescription = new Prescription();
-                $prescription->fk_user_id = Auth::id();
-                $prescription->fk_medicine_id = $medicine->id;
-                $prescription->time_period = $timePeriod;
-                $prescription->save();
+                $prescription = $prescriptionService->addToPrescription($medicine->id, $timePeriod);
 
-                $this->addDosage($prescription,$data['doseDetails']);
+                $this->addDosage($prescription, $data['doseDetails']);
             } else {
                 if ($prescriptionExist->time_period < Carbon::today() || $prescriptionExist->status = 'inactive') {
                     $prescriptionExist->time_period = $timePeriod;
@@ -57,34 +47,29 @@ class PrescriptionController extends Controller
 
                     $prescriptionExist->dose()->delete();
 
-                    $this->addDosage($prescriptionExist,$data['doseDetails']);
+                    $this->addDosage($prescriptionExist, $data['doseDetails']);
                 } else {
                     $prescriptionNotSaved[] = $data['medicineName'];
                 }
-
             }
         }
 
-        $response = [
-            'msg' => 'medicines has been added',
+        return response()->json([
+            'success' => true,
+            'message' => 'medicines has been added',
             'prescriptionNotSaved' => $prescriptionNotSaved,
-        ];
+        ], 201);
 
-        return response($response, 201);
     }
 
-    public function prescriptionList()
+    public function prescriptionList(PrescriptionService $prescriptionService): JsonResponse
     {
-        $list = Prescription::where('prescriptions.fk_user_id', Auth::id())
-            ->select('medicines.name', 'prescriptions.id', 'prescriptions.status', 'prescriptions.time_period')
-            ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
-            ->get();
+        $prescriptionList = PrescriptionResource::collection($prescriptionService->index());
 
-        $response = [
-            'list' => $list,
-        ];
-
-        return response($response, 200);
+        return response()->json([
+            'success' => true,
+            'prescriptionList' => $prescriptionList,
+        ], 200);
     }
 
     public function updatePrescription(Request $request)

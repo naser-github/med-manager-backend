@@ -42,13 +42,12 @@ class AuthController extends Controller
                 throw ValidationException::withMessages(['message' => [trans('auth.statusInactive')]]);
         } else throw ValidationException::withMessages(['message' => [trans('auth.signInFailed')]]);
 
-        // $user = AuthResource::collection($user);
         return response()->json([
             'success' => true,
             'data' => [
                 'message' => [trans('auth.signInSuccess')],
                 'token' => $user->createToken('my-app-token')->plainTextToken,
-                'user' => $user
+                'user' => new AuthResource($user)
             ]
         ], 200);
     }
