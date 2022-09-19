@@ -17,41 +17,6 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    public function signUp(SignUpRequest $request, AuthService $authService): JsonResponse
-    {
-        $validatedData = $request->validated();
-
-        $user = $authService->createUser($validatedData);
-        $user->assignRole($validatedData['role']);
-        $authService->setProfile($user->id, $validatedData['phone']);
-
-        return response()->json([
-            'success' => true,
-            'message' => [trans('auth.signUpSuccess')],
-        ], 201);
-    }
-
-    public function signIn(SignInRequest $request, AuthService $authService): JsonResponse
-    {
-        $validatedData = $request->validated();
-
-        $user = $authService->findByEmail($validatedData['email']);
-
-        if ($user && Hash::check($validatedData['password'], $user->password)) {
-            if ($user->user_status != 'active')
-                throw ValidationException::withMessages(['message' => [trans('auth.statusInactive')]]);
-        } else throw ValidationException::withMessages(['message' => [trans('auth.signInFailed')]]);
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'message' => [trans('auth.signInSuccess')],
-                'token' => $user->createToken('my-app-token')->plainTextToken,
-                'user' => new AuthResource($user)
-            ]
-        ], 200);
-    }
-
     public function channel($channel)
     {
         return Socialite::driver($channel)->redirect();
@@ -83,5 +48,38 @@ class AuthController extends Controller
         );
     }
 
+    public function signIn(SignInRequest $request, AuthService $authService): JsonResponse
+    {
+        $validatedData = $request->validated();
 
+        $user = $authService->findByEmail($validatedData['email']);
+
+        if ($user && Hash::check($validatedData['password'], $user->password)) {
+            if ($user->user_status != 'active')
+                throw ValidationException::withMessages(['message' => [trans('auth.statusInactive')]]);
+        } else throw ValidationException::withMessages(['message' => [trans('auth.signInFailed')]]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'message' => [trans('auth.signInSuccess')],
+                'token' => $user->createToken('my-app-token')->plainTextToken,
+                'user' => new AuthResource($user)
+            ]
+        ], 200);
+    }
+
+    public function signUp(SignUpRequest $request, AuthService $authService): JsonResponse
+    {
+        $validatedData = $request->validated();
+
+        $user = $authService->createUser($validatedData);
+        $user->assignRole($validatedData['role']);
+        $authService->setProfile($user->id, $validatedData['phone']);
+
+        return response()->json([
+            'success' => true,
+            'message' => [trans('auth.signUpSuccess')],
+        ], 201);
+    }
 }

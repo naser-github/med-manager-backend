@@ -19,7 +19,7 @@ class PrescriptionService
         return $prescription;
     }
 
-    public function index(): array
+    public function index()
     {
         return Prescription::query()->where('prescriptions.fk_user_id', Auth::id())
             ->select('medicines.name', 'prescriptions.id', 'prescriptions.status', 'prescriptions.time_period')

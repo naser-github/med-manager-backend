@@ -24,7 +24,17 @@ class PrescriptionAddRequest extends FormRequest
     public function rules()
     {
         return [
-            'formData' => 'required|array',
+            'formData' => ['required', 'array'],
+
+            'formData.*.medicineName' => ['required', 'string'],
+            'formData.*.timePeriod' => ['required', 'numeric'],
+            'formData.*.doseFrequency' => ['required', 'numeric'],
+            'formData.*.doseDetails' => ['required', 'array'],
+
+            'formData.*.doseDetails.*.label' => ['required', 'string'],
+            'formData.*.doseDetails.*.time' => ['required', 'min:1'],
+
+
         ];
     }
 }
