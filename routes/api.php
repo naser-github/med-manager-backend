@@ -24,8 +24,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::prefix('/prescription')->group(function () {
             Route::post('/add', [PrescriptionController::class, 'addPrescription']); // add prescription
+            Route::get('/edit/{medicineId}', [PrescriptionController::class, 'editPrescription']); // edit prescription)
             Route::get('/list', [PrescriptionController::class, 'prescriptionList']); // prescription list
             Route::put('/update', [PrescriptionController::class, 'updatePrescription']); // update prescription
+
+            Route::get('{medicineId}/dosage', [PrescriptionController::class, 'dosageDetails']); // update prescription
         });
 
         Route::prefix('/medicine')->group(function () {

@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Prescription;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Request;
 use App\Http\Requests\Prescription\PrescriptionAddRequest;
+use App\Http\Requests\Prescription\PrescriptionUpdateRequest;
+use App\Http\Resources\Prescription\PrescribedMedicineResource;
 use App\Http\Resources\Prescription\PrescriptionResource;
 use App\Http\Services\MedicineService;
 use App\Http\Services\PrescriptionService;
@@ -26,7 +27,7 @@ class PrescriptionController extends Controller
      */
     public function addPrescription(PrescriptionAddRequest $request, MedicineService $medicineService, PrescriptionService $prescriptionService): JsonResponse
     {
-        $validatedData = $request->validated();
+        $validatedData = $request->validated(); // validates data
 
         $prescriptionNotSaved = array();
 
@@ -41,7 +42,7 @@ class PrescriptionController extends Controller
 
                 if (!$medicine) $medicine = $medicineService->create($data['medicineName']); // add medicine to the medicine table if it doesn't exist
 
-                $prescriptionExist = $prescriptionService->prescriptionExist($data['medicineName']); // checks if same medicine already running for a user
+                $prescriptionExist = $prescriptionService->findByPrescriptionMedicineName($data['medicineName']); // checks if same medicine already running for a user
 
 
                 if (!$prescriptionExist) {
@@ -72,7 +73,7 @@ class PrescriptionController extends Controller
             ], 201);
         } catch (\Exception $error) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'consumption failed' . $error,], 500);
+            return response()->json(['success' => false, 'message' => 'adding medicines to prescription failed' . $error,], 500);
         }
 
     }
@@ -83,34 +84,86 @@ class PrescriptionController extends Controller
      */
     public function prescriptionList(PrescriptionService $prescriptionService): JsonResponse
     {
-        $prescriptionList = PrescriptionResource::collection($prescriptionService->index());
+        $prescriptionList = $prescriptionService->index(); // fetching prescription list of a user
 
         return response()->json([
             'success' => true,
-            'prescriptionList' => $prescriptionList,
+            'prescriptionList' => PrescriptionResource::collection($prescriptionList),
         ], 200);
     }
 
-    public function updatePrescription(Request $request)
+    /**
+     * @param $medicineId
+     * @param PrescriptionService $prescriptionService
+     * @return JsonResponse
+     */
+    public function editPrescription($medicineId, PrescriptionService $prescriptionService): JsonResponse
     {
+        $prescribedMedicine = $prescriptionService->findPrescribedMedicine($medicineId); // fetching medicine details from prescription table
 
-        $prescriptionExist = Prescription::where('id', $request->id)->first();
+        if ($prescribedMedicine)
+            return response()->json(['success' => true, 'prescribedMedicine' => new PrescribedMedicineResource($prescribedMedicine)], 200);
+        else
+            return response()->json(['success' => false, 'message' => 'not found!!!'], 404);
 
-        if ($prescriptionExist) {
-            $medicine = Medicine::where('name', $request->name)->first();
+    }
 
-            if (!$medicine) {
-                $medicine = new Medicine();
-                $medicine->name = $request->name;
-                $medicine->save();
-            }
+    /**
+     * @param PrescriptionUpdateRequest $request
+     * @param MedicineService $medicineService
+     * @param PrescriptionService $prescriptionService
+     * @return JsonResponse
+     */
+    public function updatePrescription(PrescriptionUpdateRequest $request, MedicineService $medicineService, PrescriptionService $prescriptionService): JsonResponse
+    {
+        $validatedData = $request->validated(); // validates data
 
+        DB::beginTransaction();
+        try {
+
+            $prescription = $prescriptionService->findById($validatedData['formData']['id']);
+
+            if (!$prescription) throw new \Exception('invalid request'); // checks if prescription id is valid
+
+            $medicine = $medicineService->findByName($validatedData['formData']['medicine']['name']); // checks medicine name already exist in DB
+
+            if (!$medicine)
+                $medicine = $medicineService->create($validatedData['formData']['medicine']['name']); // add medicine into DB if not exist
+
+            $prescriptionService->updatePrescription($prescription, $medicine->id, $validatedData['formData']); // updating prescription info
+
+            $prescription->dose()->delete(); // deletes all existing dosage time
+
+            $this->addDosage($prescription, $validatedData['formData']['dose']);
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'prescription has been successfully updated',], 201);
+        } catch (\Exception $error) {
+            DB::rollback();
+            return response()->json(['success' => false, 'message' => 'update failed' . $error,], 500);
+        }
+
+    }
+
+    /**
+     * @param $medicineId
+     * @param PrescriptionService $prescriptionService
+     * @return JsonResponse
+     */
+    public function dosageDetails($medicineId, PrescriptionService $prescriptionService): JsonResponse
+    {
+        $dosageDetails = $prescriptionService->dosageDetails($medicineId);
+
+        if ($dosageDetails) {
+            return response()->json([
+                'success' => true,
+                'dosageDetails' => $dosageDetails,
+            ], 200);
         } else {
-            $response = [
-                'msg' => "medicines doesn't exist",
-            ];
-
-            return response($response, 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'not found',
+            ], 404);
         }
     }
 }

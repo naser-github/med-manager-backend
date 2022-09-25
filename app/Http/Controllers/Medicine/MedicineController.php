@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Medicine;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Medicine\MedicineSearchResource;
+use App\Http\Resources\Medicine\MedicineResource;
 use App\Http\Services\MedicineService;
 
 class MedicineController extends Controller
@@ -14,7 +14,7 @@ class MedicineController extends Controller
 
         return response()->json([
             'success' => true,
-            'result' => MedicineSearchResource::collection($medicine),
+            'result' => MedicineResource::collection($medicine),
         ], 200);
     }
 }
