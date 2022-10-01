@@ -36,7 +36,7 @@ class PrescriptionController extends Controller
 
             foreach ($validatedData['formData'] as $data) {
 
-                $timePeriod = Carbon::today()->addDays($data['timePeriod'])->toDateString(); // converting $data['timePeriod'] is an integer which is getting date
+                $timePeriod = Carbon::today()->addDays($data['timePeriod']-1)->toDateString(); // converting $data['timePeriod'] is an integer which is getting date
 
                 $medicine = $medicineService->findByName($data['medicineName']); // checks if medicine already exist in the database
 
@@ -122,6 +122,7 @@ class PrescriptionController extends Controller
         try {
 
             $prescription = $prescriptionService->findById($validatedData['formData']['id']);
+            $flag = $prescription->status === $validatedData['formData']['status']?0:1;
 
             if (!$prescription) throw new \Exception('invalid request'); // checks if prescription id is valid
 
@@ -134,7 +135,7 @@ class PrescriptionController extends Controller
 
             $prescription->dose()->delete(); // deletes all existing dosage time
 
-            $this->addDosage($prescription, $validatedData['formData']['dose']);
+            $this->addDosage($prescription, $validatedData['formData']['dose'], $validatedData['formData']['status'], $flag);
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'prescription has been successfully updated',], 201);

@@ -65,7 +65,7 @@ class PrescriptionService
     public function updatePrescription($prescription, $medicineId, $payload)
     {
         $prescription->fk_medicine_id = $medicineId;
-        $prescription->time_period = Carbon::today()->addDays($payload['time_period'])->toDateString();
+        $prescription->time_period = Carbon::today()->addDays($payload['time_period']-1)->toDateString();
         $prescription->status = $payload['status'];
 
         $prescription->save();

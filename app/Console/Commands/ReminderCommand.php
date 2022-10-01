@@ -23,12 +23,11 @@ class ReminderCommand extends Command
      */
     protected $description = 'Command description';
 
+
     /**
-     * Execute the console command.
-     *
-     * @return int
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $reminders = DB::table('prescriptions')
             ->select(
@@ -43,7 +42,7 @@ class ReminderCommand extends Command
             ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
             ->leftJoin('dosages', 'dosages.dosage_id', '=', 'prescriptions.id')
             ->whereBetween(
-                'dosages.time', [Carbon::now()->format('H:i:m'), Carbon::now()->addMinute(300)->format('H:i:m')]
+                'dosages.time', [Carbon::now()->format('H:i:m'), Carbon::now()->addMinute(30)->format('H:i:m')]
             )
             ->where('dosages.status', 'active')
             ->groupBy('prescriptions.fk_user_id')
