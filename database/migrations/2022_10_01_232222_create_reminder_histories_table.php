@@ -11,12 +11,15 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('medicines', function (Blueprint $table) {
+        Schema::create('reminder_histories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->foreignId('fk_user_id');
+            $table->integer('number_of_medicines');
             $table->timestamps();
+
+            $table->foreign('fk_user_id')->references('id')->on('users');
         });
     }
 
@@ -25,8 +28,8 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('medicines');
+        Schema::dropIfExists('reminder_histories');
     }
 };

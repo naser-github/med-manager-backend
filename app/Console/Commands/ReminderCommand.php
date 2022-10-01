@@ -31,8 +31,8 @@ class ReminderCommand extends Command
     {
         $reminders = DB::table('prescriptions')
             ->select(
-                'users.name as userName', 'users.email',
-                DB::raw('GROUP_CONCAT(medicines.name) as medicineName'),
+                'users.id as userId','users.name as userName', 'users.email',
+                DB::raw('GROUP_CONCAT(medicines.name) as medicineName, count(medicines.name) as numberOfMedicine'),
                 'prescriptions.fk_user_id', 'prescriptions.fk_medicine_id', 'prescriptions.time_period', 'prescriptions.status as medicineStatus',
                 DB::raw('GROUP_CONCAT(dosages.label)'), DB::raw('GROUP_CONCAT(dosages.time) as dosageTime'), 'dosages.status as doseStatus'
             )
