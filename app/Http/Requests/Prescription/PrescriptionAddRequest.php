@@ -33,8 +33,6 @@ class PrescriptionAddRequest extends FormRequest
 
             'formData.*.doseDetails.*.label' => ['required', 'string'],
             'formData.*.doseDetails.*.time' => ['required', 'min:1'],
-
-
         ];
     }
 }

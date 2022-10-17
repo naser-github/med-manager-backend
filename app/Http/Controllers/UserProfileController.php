@@ -2,16 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Setting\ProfileResource;
+use App\Http\Resources\Setting\UserDetailResource;
+use App\Http\Services\ProfileService;
 use App\Models\User;
 use App\Models\UserProfile;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserProfileController extends Controller
 {
+
+    public function show(ProfileService $profileService)
+    {
+        return response()->json([
+            'success' => true,
+            'userDetail' => new UserDetailResource($profileService->show())
+        ], 200);
+    }
+
     public function editProfile($id)
     {
-
         $user = User::where('users.id', $id)
             ->leftJoin('user_profiles', 'user_profiles.fk_user_id', '=', 'users.id')
             ->first();

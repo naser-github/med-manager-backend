@@ -5,11 +5,15 @@ namespace App\Http\Services;
 use App\Models\Medicine;
 use App\Models\Prescription;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardService
 {
-    public function dailyDoseList()
+    /**
+     * @return Collection|array
+     */
+    public function dailyDoseList(): Collection|array
     {
         return Prescription::query()
             ->where('prescriptions.fk_user_id', Auth::id())

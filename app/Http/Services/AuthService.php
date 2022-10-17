@@ -5,13 +5,19 @@ namespace App\Http\Services;
 
 use App\Models\User;
 use App\Models\UserProfile;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use PhpParser\Node\Expr\Cast\Object_;
 
 class AuthService
 {
-    public function createUser($payload): object
+    /**
+     * @param $payload
+     * @return User
+     */
+    public function createUser($payload): User
     {
         $user = new User();
         $user->name = $payload['name'];
@@ -22,11 +28,21 @@ class AuthService
         return $user;
     }
 
-    public function findByEmail($payload): object | null
+    /**
+     * @param $payload
+     * @return Model|Builder|null
+     */
+    public function findByEmail($payload): Model|Builder|null
     {
         return User::query()->where('email', $payload)->first();
     }
 
+    /**
+     * @param $userId
+     * @param $avatar
+     * @param $phoneNo
+     * @return void
+     */
     public function setProfile($userId, $avatar=null, $phoneNo=null): void
     {
         $user_profile = new UserProfile();
@@ -36,7 +52,11 @@ class AuthService
         $user_profile->save();
     }
 
-    public function socialMediaLogin($payload) : object
+    /**
+     * @param $payload
+     * @return User
+     */
+    public function socialMediaLogin($payload): User
     {
         $user = new User();
         $user->name = $payload->name;

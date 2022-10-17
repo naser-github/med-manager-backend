@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\UserManagement;
+namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Setting\RoleListResource;
+use App\Http\Services\setting\RoleService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -11,12 +14,11 @@ use Spatie\Permission\Models\Role;
 class RoleController extends Controller
 {
 
-    public function index()
+    public function index(RoleService $roleService): JsonResponse
     {
-        $roles = Role::all();
+        $roleList = $roleService->index();
 
-        return view('pages.admin.role_management.index',
-            compact('roles'));
+        return response()->json(['success' => true, 'roleList' => RoleListResource::collection($roleList)], 200);
     }
 
     public function store(Request $request)

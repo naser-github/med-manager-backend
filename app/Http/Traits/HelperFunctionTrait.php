@@ -6,13 +6,6 @@ use App\Models\Medicine;
 
 trait HelperFunctionTrait
 {
-
-    /**
-     * add dosage time of a medicine in the database
-     * @param $medicine
-     * @param $doseDetails
-     * @return void
-     */
     public function addDosage($medicine, $doseDetails, $medicineStatus = 'active', $flag = 0): void
     {
         foreach ($doseDetails as $dose) {
@@ -22,5 +15,11 @@ trait HelperFunctionTrait
                 'status' => $flag === 0 ? (array_key_exists('status', $dose) ? $dose['status'] : 'active') : $medicineStatus,
             ]);
         }
+    }
+
+    public function passwordGenerator($length): string
+    {
+        $data = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz';
+        return substr(str_shuffle($data), 0, $length);
     }
 }
