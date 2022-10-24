@@ -15,7 +15,7 @@ class ProfileService
     /**
      * @return Model|Builder|null
      */
-    public function show(): Model|Builder|null
+    public function userData(): Model|Builder|null
     {
         return User::query()->with(['profile'])->where('id', Auth::id())->first();
     }

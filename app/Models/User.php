@@ -45,6 +45,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public static function where(string $string, $id)
+    {
+    }
+
     public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class, 'fk_user_id');

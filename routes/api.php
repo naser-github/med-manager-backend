@@ -21,7 +21,6 @@ Route::prefix('/sign-in')->group(function () {
     Route::get('/{channel}/callback', [AuthController::class, 'channelCallback']);
 });
 
-
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::middleware(['auth', 'role:superOperator|user'])->group(function () {
@@ -45,6 +44,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::prefix('/profile')->group(function () {
             Route::get('', [UserProfileController::class, 'show']);
+            Route::put('/update', [UserProfileController::class, 'update']);
         });
 
         Route::prefix('/role')->group(function () {

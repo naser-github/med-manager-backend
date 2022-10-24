@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Resources\Setting\ProfileResource;
 use App\Http\Resources\Setting\UserDetailResource;
 use App\Http\Services\ProfileService;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,59 +17,46 @@ use Illuminate\Support\Facades\Hash;
 class UserProfileController extends Controller
 {
 
-    public function show(ProfileService $profileService)
+    /**
+     * @param ProfileService $profileService
+     * @return JsonResponse
+     */
+    public function show(ProfileService $profileService): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'userDetail' => new UserDetailResource($profileService->show())
-        ], 200);
+        $profileData = $profileService->userData(); // gets profile data
+
+        return response()->json(['success' => true, 'userDetail' => new UserDetailResource($profileData)], 200);
     }
 
-    public function editProfile($id)
+//    public function editProfile($id)
+//    {
+//        $profileData = $profileService->show();
+//        $user = User::where('users.id', $id)
+//            ->leftJoin('user_profiles', 'user_profiles.fk_user_id', '=', 'users.id')
+//            ->first();
+//
+//
+//        if (!$user) {
+//            $response = [
+//                'msg' => 'No User Found!!'
+//            ];
+//            return response($response, 404);
+//        }
+//
+//        $response = [
+//            'user' => $user,
+//        ];
+//        return response($response, 200);
+//    }
+
+    public function updateProfile(UpdateProfileRequest $request, ProfileService $profileService)
     {
-        $user = User::where('users.id', $id)
-            ->leftJoin('user_profiles', 'user_profiles.fk_user_id', '=', 'users.id')
-            ->first();
+        $profileData = $profileService->userData();
 
-
-        if (!$user) {
-            $response = [
-                'msg' => 'No User Found!!'
-            ];
-            return response($response, 404);
+        if (!$profileData) {
+            $response = ['msg' => "User Doesn't exist"]; return response($response, 404);
         }
 
-        $response = [
-            'user' => $user,
-        ];
-        return response($response, 200);
-    }
-
-    public function updateProfile(Request $request, $id)
-    {
-        request()->validate([
-            'name' => 'required',
-            'phone' => 'required|min:11||max:14',
-            'password' => 'present|confirmed:password_confirm',
-            'status' => 'required',
-        ]);
-
-        $user = User::where('id', $id)->first();
-
-        if (!$user) {
-            $response = [
-                'msg' => "User Doesn't exist",
-            ];
-            return response($response, 404);
-        }
-
-        $name = $request->input('name');
-        $phone = $request->input('phone');
-
-        $user->name = $name;
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-        }
         $user->save();
 
         $user_profile = UserProfile::where('fk_user_id', $id)->first();
