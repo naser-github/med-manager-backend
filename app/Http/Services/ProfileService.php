@@ -13,6 +13,14 @@ class ProfileService
 {
 
     /**
+     * @return object|null
+     */
+    public function findByAuthId(): object|null
+    {
+        return UserProfile::query()->where('fk_user_id', Auth::id())->first();
+    }
+
+    /**
      * @return Model|Builder|null
      */
     public function userData(): Model|Builder|null

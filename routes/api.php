@@ -44,7 +44,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::prefix('/profile')->group(function () {
             Route::get('', [UserProfileController::class, 'show']);
-            Route::put('/update', [UserProfileController::class, 'update']);
+            Route::put('/update-profile', [UserProfileController::class, 'updateProfile']);
+            Route::put('/update-password', [UserProfileController::class, 'updatePassword']);
         });
 
         Route::prefix('/role')->group(function () {

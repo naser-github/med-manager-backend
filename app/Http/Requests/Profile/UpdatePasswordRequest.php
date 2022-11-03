@@ -3,9 +3,8 @@
 namespace App\Http\Requests\Profile;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateProfileRequest extends FormRequest
+class UpdatePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +24,8 @@ class UpdateProfileRequest extends FormRequest
     public function rules()
     {
         return [
-
-            'id' => ['required'],
-            'name' => ['required', 'string'],
-            'profile.user_phone' => ['required', 'regex:/(1)[0-9]{9}$/'],
-
+            'current_password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
         ];
     }
 }

@@ -7,6 +7,7 @@ use App\Models\UserProfile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
@@ -26,6 +27,14 @@ class UserService
     public function findById($payload): object|null
     {
         return User::query()->where('id', $payload)->first();
+    }
+
+    /**
+     * @return object|null
+     */
+    public function findByAuthId(): object|null
+    {
+        return User::query()->where('id', Auth::id())->first();
     }
 
     /**
