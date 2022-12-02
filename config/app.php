@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -197,11 +197,11 @@ return [
 
         // external packages
 
-        //spatie
-        Spatie\Permission\PermissionServiceProvider::class,
+        Spatie\Permission\PermissionServiceProvider::class, //spatie
 
-        // Laravel Debugger
-        Barryvdh\Debugbar\ServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class, // Laravel Debugger
+
+        Maatwebsite\Excel\ExcelServiceProvider::class, // Laravel Excel
     ],
 
     /*
@@ -220,6 +220,9 @@ return [
 
         //Laravel Debugger
         'Debugbar' => Barryvdh\Debugbar\Facades\Debugbar::class,
+
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class, // Laravel Excel
+
     ])->toArray(),
 
 ];

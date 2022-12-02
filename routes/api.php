@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Import\ImportController;
 use App\Http\Controllers\Medicine\MedicineController;
 use App\Http\Controllers\Prescription\PrescriptionController;
 use App\Http\Controllers\Setting\RoleController;
@@ -27,6 +28,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::prefix('/dashboard')->group(function () {
             Route::get('', [DashboardController::class, 'index']); // add prescription
+        });
+
+        Route::prefix('/import')->group(function () {
+            Route::post('/medicine-data', [ImportController::class, 'importMedicineData']); // add prescription
         });
 
         Route::prefix('/medicine')->group(function () {
