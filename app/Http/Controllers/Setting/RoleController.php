@@ -5,14 +5,10 @@ namespace App\Http\Controllers\Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Setting\Role\RoleStoreRequest;
 use App\Http\Requests\Setting\Role\RoleUpdateRequest;
-use App\Http\Resources\Setting\RoleDetailResource;
-use App\Http\Resources\Setting\RoleListResource;
+use App\Http\Resources\Setting\Role\RoleDetailResource;
+use App\Http\Resources\Setting\Role\RoleListResource;
 use App\Http\Services\setting\RoleService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -53,7 +49,7 @@ class RoleController extends Controller
         $role = $roleService->findById($id);
 
         if ($role === null)
-            return response()->json(['success' => false, 'message' => 'role no found'], 404);
+            return response()->json(['success' => false, 'message' => 'role not found'], 404);
         else
             return response()->json(['success' => true, 'role' => new RoleDetailResource($role)], 200);
 
@@ -65,7 +61,7 @@ class RoleController extends Controller
      * @param RoleService $roleService
      * @return JsonResponse
      */
-    public function update($id, RoleUpdateRequest $request, RoleService $roleService)
+    public function update($id, RoleUpdateRequest $request, RoleService $roleService): JsonResponse
     {
         $validateData = $request->validated(); // validating data
 

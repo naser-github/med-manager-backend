@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Setting\User\UserStoreRequest;
 use App\Http\Requests\Setting\User\UserUpdateRequest;
-use App\Http\Resources\Setting\RoleListResource;
-use App\Http\Resources\Setting\UserDetailResource;
-use App\Http\Resources\Setting\UserListResource;
+use App\Http\Resources\Setting\User\UserDetailResource;
+use App\Http\Resources\Setting\User\UserListResource;
 use App\Http\Services\setting\RoleService;
 use App\Http\Services\setting\UserService;
 use App\Http\Traits\HelperFunctionTrait;
@@ -84,7 +83,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'roleList' => RoleListResource::collection($roleList),
+            'roleList' => \App\Http\Resources\Setting\Role\RoleListResource::collection($roleList),
             'userData' => new UserDetailResource($userData)
         ], 200);
     }

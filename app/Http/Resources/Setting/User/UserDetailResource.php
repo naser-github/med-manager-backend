@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Resources\Setting;
+namespace App\Http\Resources\Setting\User;
 
+use App\Http\Resources\Setting\ProfileResource;
+use App\Http\Resources\Setting\Role\RoleListResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserDetailResource extends JsonResource
