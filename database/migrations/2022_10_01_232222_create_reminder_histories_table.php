@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('reminder_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fk_user_id')->constrained();
+            $table->unsignedBigInteger('fk_user_id');
             $table->integer('number_of_medicines');
             $table->timestamps();
 

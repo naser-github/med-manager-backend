@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Prescription;
+namespace App\Http\Resources\Setting;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PrescriptionResource extends JsonResource
+class RoleDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,7 @@ class PrescriptionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'medicine_id' => $this->medicine_id,
-            'medicine_name' => $this->medicine_name,
-            "status" => $this->status,
-            "time_period" => $this->time_period,
+            'name' => $this->name,
         ];
-
     }
 }

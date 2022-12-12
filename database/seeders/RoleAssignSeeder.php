@@ -17,8 +17,8 @@ class RoleAssignSeeder extends Seeder
     public function run()
     {
         // SuperOperator
-        $user = User::findOrFail(1);
-        $role = Role::where('name', 'superOperator')->first();
+        $user = User::query()->findOrFail(1);
+        $role = Role::query()->where('name', 'superOperator')->first();
         $user->assignRole($role);
     }
 }

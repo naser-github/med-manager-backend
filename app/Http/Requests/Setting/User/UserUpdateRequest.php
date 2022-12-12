@@ -25,7 +25,7 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => ['required', Rule::exists("users", "id")],
+            'id' => ['required', 'integer'],
             'name' => ['required', 'string'],
             'email' => ['required', 'email', Rule::unique('users')->ignore($this->id)],
             'user_status' => ['required', 'string'],
@@ -33,7 +33,7 @@ class UserUpdateRequest extends FormRequest
             'profile' => ['required'],
             'profile.id' => ['required', Rule::exists("user_profiles", "id")],
             'profile.user_phone' => ['required', 'regex:/(01)[0-9]{9}$/'],
-//
+
             'roles.*.id' => ['required', Rule::exists("roles", "id")],
             'roles.*.name' => ['required'],
         ];

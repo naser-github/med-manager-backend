@@ -33,4 +33,12 @@ class UserStoreRequest extends FormRequest
             'formData.role' => ['required', Rule::exists("roles", "id")],
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'formData.phone.required' => 'phone number is a required field',
+            'formData.phone.unique' => 'phone number is already taken',
+        ];
+    }
 }

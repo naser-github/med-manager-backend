@@ -17,7 +17,7 @@ class UserProfileSeeder extends Seeder
     public function run()
     {
         //Super Operator
-        $user = User::findOrFail(1);
+        $user = User::query()->findOrFail(1);
         $profile = new UserProfile();
         $profile->fk_user_id = $user->id;
         $profile->user_phone = '01798435813';

@@ -21,7 +21,6 @@ class UserSeeder extends Seeder
         $user->name = 'Super Operator';
         $user->email = 'superOperator@gmail.com';
         $user->password = Hash::make('Ab123456');
-        $user->user_status = 'active';
         $user->save();
     }
 }

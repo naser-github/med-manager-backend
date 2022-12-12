@@ -12,13 +12,21 @@ use App\Http\Services\setting\RoleService;
 use App\Http\Services\setting\UserService;
 use App\Http\Traits\HelperFunctionTrait;
 use App\Jobs\SendNewUserEmailJob;
-use http\Client\Curl\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     use HelperFunctionTrait;
+
+//    public function __construct()
+//    {
+//        $this->middleware('permission:user_read', ['only' => ['index']]);
+//
+//        $this->middleware('permission:user_write', ['only' => [
+//            'store', 'edit', 'update'
+//        ]]);
+//    }
 
     /**
      * @param UserService $userService
@@ -68,7 +76,9 @@ class UserController extends Controller
     {
         $userData = $userService->userData($id); // search for user
 
-        if (!$userData) return response()->json(['success' => false, 'message' => 'user not found'], 404);
+        if (!$userData) return response()->json([
+            'success' => false, 'message' => 'user not found'
+        ], 404);
 
         $roleList = $roleService->index(); // get role list
 
@@ -79,7 +89,13 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function update($id, UserUpdateRequest $request, UserService $userService)
+    /**
+     * @param $id
+     * @param UserUpdateRequest $request
+     * @param UserService $userService
+     * @return JsonResponse
+     */
+    public function update($id, UserUpdateRequest $request, UserService $userService): JsonResponse
     {
         $validatedData = $request->validated();
 
@@ -100,5 +116,4 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => 'User update failed' . $error,], 500);
         }
     }
-
 }

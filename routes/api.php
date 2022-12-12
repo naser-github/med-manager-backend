@@ -55,6 +55,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::prefix('/role')->group(function () {
             Route::get('/index', [RoleController::class, 'index']);
+            Route::post('/store', [RoleController::class, 'store']);
+
+            Route::get('{id}/edit', [RoleController::class, 'edit']);
+            Route::put('{id}/update', [RoleController::class, 'update']);
         });
 
         Route::prefix('/user')->group(function () {

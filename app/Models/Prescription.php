@@ -15,7 +15,7 @@ class Prescription extends Model
 
     public function medicine(): BelongsTo
     {
-        return $this->belongsTo(Medicine::class, 'id');
+        return $this->belongsTo(Medicine::class, 'fk_medicine_id');
     }
 
     public function dose(): MorphMany

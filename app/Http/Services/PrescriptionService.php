@@ -84,8 +84,11 @@ class PrescriptionService
     public function index(): Collection|array
     {
         return Prescription::query()->where('prescriptions.fk_user_id', Auth::id())
-            ->select('medicines.name', 'prescriptions.id', 'prescriptions.status', 'prescriptions.time_period')
             ->leftJoin('medicines', 'medicines.id', '=', 'prescriptions.fk_medicine_id')
+            ->select(
+                'medicines.id as medicine_id', 'medicines.name as medicine_name',
+                'prescriptions.id', 'prescriptions.status', 'prescriptions.time_period'
+            )
             ->get();
     }
 

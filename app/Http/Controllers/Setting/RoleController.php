@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Setting\Role\RoleStoreRequest;
+use App\Http\Requests\Setting\Role\RoleUpdateRequest;
+use App\Http\Resources\Setting\RoleDetailResource;
 use App\Http\Resources\Setting\RoleListResource;
 use App\Http\Services\setting\RoleService;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +17,10 @@ use Spatie\Permission\Models\Role;
 class RoleController extends Controller
 {
 
+    /**
+     * @param RoleService $roleService
+     * @return JsonResponse
+     */
     public function index(RoleService $roleService): JsonResponse
     {
         $roleList = $roleService->index();
@@ -21,53 +28,55 @@ class RoleController extends Controller
         return response()->json(['success' => true, 'roleList' => RoleListResource::collection($roleList)], 200);
     }
 
-    public function store(Request $request)
+    /**
+     * @param RoleStoreRequest $request
+     * @param RoleService $roleService
+     * @return JsonResponse
+     */
+    public function store(RoleStoreRequest $request, RoleService $roleService): JsonResponse
     {
-        request()->validate([
-            'name' => 'required|unique:roles',
-        ]);
+        $validateData = $request->validated(); // validating data
 
-        $role = new Role();
-        $role->name = $request->name;
-        $role->save();
+        $roleService->store($validateData['name']); // sending validated data to service
 
-        Session::flash('success', 'Role has been created');
-        return Redirect::route('roles.index');
+        return response()->json(['success' => true, 'message' => 'role created successfully'], 201);
     }
 
-    public function show($id)
+
+    /**
+     * @param $id
+     * @param RoleService $roleService
+     * @return JsonResponse
+     */
+    public function edit($id, RoleService $roleService): JsonResponse
     {
-        //
-    }
+        $role = $roleService->findById($id);
 
-    public function edit(Request $request)
-    {
-        $id = $request->id;
-
-        $role = Role::where('id', $id)->first();
-
-        if ($role)
-            return view('pages.admin.role_management.edit',
-                compact('role'));
+        if ($role === null)
+            return response()->json(['success' => false, 'message' => 'role no found'], 404);
         else
-            return back();
+            return response()->json(['success' => true, 'role' => new RoleDetailResource($role)], 200);
+
     }
 
-    public function update(Request $request, $id)
+    /**
+     * @param $id
+     * @param RoleUpdateRequest $request
+     * @param RoleService $roleService
+     * @return JsonResponse
+     */
+    public function update($id, RoleUpdateRequest $request, RoleService $roleService)
     {
-        request()->validate([
-            'name' => 'required|unique:roles',
-        ]);
+        $validateData = $request->validated(); // validating data
 
-        $role = Role::where('id', $id)->first();
+        $role = $roleService->findById($id); // checking if role exist
 
-        if ($role) {
-            $role->name = $request->name;
-            $role->save();
-            Session::flash('success', 'Role name has been updated');
-            return Redirect::route('roles.index');
-        } else
-            return back();
+        if ($role === null)
+            return response()->json(['success' => false, 'message' => 'role not found'], 404);
+        else {
+            $roleService->update($role, $validateData['name']);
+            return response()->json(['success' => true, 'message' => 'role updated successfully'], 201);
+        }
     }
 
     public function destroy($id)
