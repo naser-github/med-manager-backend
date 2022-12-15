@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Setting\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleStoreRequest extends FormRequest
 {
@@ -25,6 +26,9 @@ class RoleStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'unique:roles'],
+
+            'permissions' => ['required'],
+            'permissions.*' => ['required','integer', Rule::exists('permissions', 'id')],
         ];
     }
 }

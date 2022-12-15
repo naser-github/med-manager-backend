@@ -12,7 +12,7 @@ class RoleService
      */
     public function index(): Collection|array
     {
-        return Role::query()->orderBy('name','ASC')->get();
+        return Role::query()->with(['permissions'])->orderBy('name', 'ASC')->get();
     }
 
     public function findById($payload): object|null
@@ -20,11 +20,19 @@ class RoleService
         return Role::query()->where('id', $payload)->first();
     }
 
-    public function store($payload): void
+    public function findByIdWithPermissions($payload): object|null
+    {
+        return Role::query()->with(['permissions'])->where('id', $payload)->first();
+    }
+
+    public function store($payload): Role
     {
         $role = new Role();
-        $role->name = $payload;
+        $role->name = $payload['name'];
+        $role->guard_name = 'web';
         $role->save();
+
+        return $role;
     }
 
     public function update($role, $payload): void

@@ -24,6 +24,7 @@ class PermissionService
     {
         $permission = new Permission();
         $permission->name = $payload;
+        $permission->guard_name = 'web';
         $permission->save();
     }
 

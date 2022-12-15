@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Setting\Role\RoleStoreRequest;
 use App\Http\Requests\Setting\Role\RoleUpdateRequest;
+use App\Http\Resources\Setting\Permission\PermissionListResource;
 use App\Http\Resources\Setting\Role\RoleDetailResource;
 use App\Http\Resources\Setting\Role\RoleListResource;
+use App\Http\Services\setting\PermissionService;
 use App\Http\Services\setting\RoleService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -33,26 +36,39 @@ class RoleController extends Controller
     {
         $validateData = $request->validated(); // validating data
 
-        $roleService->store($validateData['name']); // sending validated data to service
-
-        return response()->json(['success' => true, 'message' => 'role created successfully'], 201);
+        DB::beginTransaction();
+        try {
+            $role = $roleService->store($validateData); // sending validated data to service
+            $role->syncPermissions($validateData['permissions']); // syncing all the permissions to role
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'role created successfully'], 201);
+        } catch (\Exception $error) {
+            DB::rollback();
+            return response()->json(['success' => false, 'message' => 'failed to create role. ' . $error,], 404);
+        }
     }
 
 
     /**
      * @param $id
+     * @param PermissionService $permissionService
      * @param RoleService $roleService
      * @return JsonResponse
      */
-    public function edit($id, RoleService $roleService): JsonResponse
+    public function edit($id, PermissionService $permissionService, RoleService $roleService): JsonResponse
     {
-        $role = $roleService->findById($id);
+        $role = $roleService->findByIdWithPermissions($id);
 
         if ($role === null)
             return response()->json(['success' => false, 'message' => 'role not found'], 404);
-        else
-            return response()->json(['success' => true, 'role' => new RoleDetailResource($role)], 200);
-
+        else {
+            $permissions = $permissionService->index();
+            return response()->json([
+                'success' => true,
+                'permissions' => PermissionListResource::collection($permissions),
+                'role' => new RoleDetailResource($role),
+            ], 200);
+        }
     }
 
     /**
@@ -71,6 +87,7 @@ class RoleController extends Controller
             return response()->json(['success' => false, 'message' => 'role not found'], 404);
         else {
             $roleService->update($role, $validateData['name']);
+            $role->syncPermissions($validateData['permissions']);
             return response()->json(['success' => true, 'message' => 'role updated successfully'], 201);
         }
     }

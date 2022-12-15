@@ -18,14 +18,14 @@ class UserController extends Controller
 {
     use HelperFunctionTrait;
 
-//    public function __construct()
-//    {
-//        $this->middleware('permission:user_read', ['only' => ['index']]);
-//
-//        $this->middleware('permission:user_write', ['only' => [
-//            'store', 'edit', 'update'
-//        ]]);
-//    }
+    public function __construct()
+    {
+        $this->middleware('permission:user_management_read', ['only' => ['index']]);
+
+        $this->middleware('permission:user_management_write', ['only' => [
+            'store', 'edit', 'update'
+        ]]);
+    }
 
     /**
      * @param UserService $userService

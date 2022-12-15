@@ -26,7 +26,10 @@ class RoleUpdateRequest extends FormRequest
     {
         return [
             'id' => ['required', 'integer'],
-            'name' => ['required', 'unique:roles,name,'.$this->id],
+            'name' => ['required', 'unique:roles,name,' . $this->id],
+
+            'permissions' => ['required'],
+            'permissions.*' => ['required', 'integer', Rule::exists('permissions', 'id')],
         ];
     }
 }

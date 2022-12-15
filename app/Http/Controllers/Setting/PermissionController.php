@@ -24,7 +24,6 @@ class PermissionController extends Controller
         return response()->json(['success' => true, 'permissionList' => PermissionListResource::collection($permissionList)], 200);
     }
 
-
     /**
      * @param PermissionStoreReuqest $request
      * @param PermissionService $permissionService
