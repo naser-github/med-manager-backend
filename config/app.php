@@ -196,11 +196,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         // external packages
-
         Spatie\Permission\PermissionServiceProvider::class, //spatie
-
         Barryvdh\Debugbar\ServiceProvider::class, // Laravel Debugger
-
         Maatwebsite\Excel\ExcelServiceProvider::class, // Laravel Excel
     ],
 
