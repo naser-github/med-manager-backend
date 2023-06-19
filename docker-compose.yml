@@ -1,0 +1,80 @@
+version: '3.8'
+services:
+
+    #   PHP Server
+    med_manager:
+        build:
+            args:
+                user: naser
+                uid: 1000
+            context: ./ # path of Dockerfile
+            dockerfile: Dockerfile
+
+        image: med_manager
+        container_name: med_manager
+        restart: unless-stopped # automatically restarts the MySQL server if stops
+
+        working_dir: /var/www # [/var/www] is the standard though you can use any name
+        volumes:
+            - ./:/var/www
+
+        networks:
+            - med_manager_network
+
+    #   Database Server
+    med_manager_db:
+        image: mysql:8.0
+        container_name: med_manager_db
+        restart: unless-stopped # automatically restarts the MySQL server if stops
+
+        ports:
+            - "3366:3306" # custom_port_number : actual_port_number
+
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE} #database name
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} #database root password
+            MYSQL_PASSWORD: ${DB_PASSWORD} #database password
+            MYSQL_USER: ${DB_USERNAME} #database user
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+
+        volumes:
+            - med_manager_data:/var/lib/mysql
+        networks:
+            - med_manager_network
+
+    #   Nginx Server
+    med_manager_nginx:
+        image: nginx:latest
+        container_name: med_manager_nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker-compose/nginx:/etc/nginx/conf.d
+        networks:
+            - med_manager_network
+
+    #    phpmyadmin
+    med_manager_phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: med_manager_phpmyadmin
+        restart: unless-stopped
+        depends_on:
+            - med_manager_db
+        ports:
+            - "8001:80"
+        environment:
+            PMA_HOST: med_manager_db
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - med_manager_network
+
+#   Docker Networks
+networks:
+    med_manager_network:
+        driver: bridge
+
+volumes:
+    med_manager_data: ~
